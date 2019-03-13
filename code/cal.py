@@ -36,7 +36,7 @@ transform = transforms.Compose([
     transforms.Normalize((125.3/255, 123.0/255, 113.9/255), (63.0/255, 62.1/255.0, 66.7/255.0)),
 ])
 
-
+import svhn
 
 
 # loading neural network
@@ -55,7 +55,6 @@ transform = transforms.Compose([
 criterion = nn.CrossEntropyLoss()
 
 
-
 def test(nnName, dataName, CUDA_DEVICE, epsilon, temperature):
     
     net1 = torch.load("../models/{}.pth".format(nnName))
@@ -63,7 +62,10 @@ def test(nnName, dataName, CUDA_DEVICE, epsilon, temperature):
     net1.cuda(CUDA_DEVICE)
     
     if dataName != "Uniform" and dataName != "Gaussian":
-        testsetout = torchvision.datasets.ImageFolder("../data/{}".format(dataName), transform=transform)
+        if dataName == "SVHN":
+            testsetout = svhn.SVHN("../data/SVHN", split='test', transform=transform, download=True)
+        else:
+            testsetout = torchvision.datasets.ImageFolder("../data/{}".format(dataName), transform=transform)
         testloaderOut = torch.utils.data.DataLoader(testsetout, batch_size=1,
                                          shuffle=False, num_workers=2)
 

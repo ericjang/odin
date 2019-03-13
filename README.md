@@ -1,5 +1,6 @@
 # ODIN: Out-of-Distribution Detector for Neural Networks
 
+Note: This codebase has been modified to support evaluation on SVHN datasets for the [WAIC but Why](https://arxiv.org/abs/1810.01392) paper.
 
 This is a [PyTorch](http://pytorch.org) implementation for detecting out-of-distribution examples in neural networks. The method is described in the paper [Enhancing The Reliability of Out-of-distribution Image Detection in Neural Networks](https://arxiv.org/abs/1706.02690) by S. Liang, [Yixuan Li](www.yixuanli.net) and [R. Srikant](https://sites.google.com/a/illinois.edu/srikant/). The method reduces the false positive rate from the baseline 34.7% to 4.3% on the DenseNet (applied to CIFAR-10) when the true positive rate is 95%.
 <p align="center">
