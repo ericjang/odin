@@ -26,6 +26,7 @@ import time
 from scipy import misc
 import calMetric as m
 import calData as d
+import svhn
 #CUDA_DEVICE = 0
 
 start = time.time()
@@ -36,8 +37,28 @@ transform = transforms.Compose([
     transforms.Normalize((125.3/255, 123.0/255, 113.9/255), (63.0/255, 62.1/255.0, 66.7/255.0)),
 ])
 
-import svhn
 
+from PIL import Image, ImageOps
+class VerticalFlip(object):
+    def __call__(self, img):
+        return ImageOps.flip(img)
+
+class HorizontalFlip(object):
+    def __call__(self, img):
+        return ImageOps.mirror(img)
+
+class Resize(object):
+
+    def __init__(self, size):
+        self.size = size
+    def __call__(self, img):
+        return img.resize((self.size, self.size), Image.BILINEAR)
+
+# Implements Datasets for Horizontal Flipping
+Flip = {
+    'VFlip': transforms.Compose([VerticalFlip(), transform]),
+    'HFlip': transforms.Compose([HorizontalFlip(), transform])
+}
 
 # loading neural network
 
@@ -64,8 +85,16 @@ def test(nnName, dataName, CUDA_DEVICE, epsilon, temperature):
     if dataName != "Uniform" and dataName != "Gaussian":
         if dataName == "SVHN":
             testsetout = svhn.SVHN("../data/SVHN", split='test', transform=transform, download=True)
+        elif dataName in ["HFlip","VFlip"]:
+            testsetout = torchvision.datasets.CIFAR10('../data', train=False, download=True, 
+                                                       transform=Flip[dataName])
+        elif dataName == "CelebA":
+            testsetout = torchvision.datasets.ImageFolder(
+                "../data/{}".format(dataName), 
+                transform=transforms.Compose([transforms.CenterCrop(178), Resize(32), transform]))
         else:
-            testsetout = torchvision.datasets.ImageFolder("../data/{}".format(dataName), transform=transform)
+            testsetout = torchvision.datasets.ImageFolder("../data/{}".format(dataName), 
+                                                          transform=transform)
         testloaderOut = torch.utils.data.DataLoader(testsetout, batch_size=1,
                                          shuffle=False, num_workers=2)
 
